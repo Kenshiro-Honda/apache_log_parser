@@ -39,6 +39,7 @@ void parse_time(char*, my_time*);
 void print_json(my_log);
 void count(my_log, host_counter*, int*);
 void re_sort(host_counter*, int);
+int date_compare(my_time, my_time);
 
 void parse_log(char* line, my_log* log) {
   char time_str[256];
@@ -71,7 +72,7 @@ void print_json(my_log log) {
   printf("  \"time\":\"%d/%02d/%02d %02d:%02d:%02d %s%04d\",\n",
     log.time.year, log.time.month, log.time.day,
     log.time.hour, log.time.min, log.time.sec,
-    (log.time.timezone<0?"-":log.time.timezone>0?"+":""), abs(log.time.timezone));
+    (log.time.timezone<0?"-":"+"), abs(log.time.timezone));
   printf("  \"request\":\"%s\",\n", log.request);
   printf("  \"status\":%d,\n", log.status);
   printf("  \"res_size\":%d,\n", log.res_size);
@@ -116,6 +117,21 @@ void re_sort(host_counter* counter, int target) {
       counter[i] = counter[i-1];
       counter[i-1] = temp;
     }
+  }
+}
+
+int date_compare(my_time time_a, my_time time_b) {
+  int a_hash, b_hash;
+  a_hash = time_a.year*12*31 + (time_a.month-1)*31 + (time_a.day-1);
+  b_hash = time_b.year*12*31 + (time_b.month-1)*31 + (time_b.day-1);
+  if ( a_hash < b_hash ) {
+    return 1;
+  }
+  else if ( a_hash > b_hash ) {
+    return -1;
+  }
+  else {
+    return 0;
   }
 }
 
