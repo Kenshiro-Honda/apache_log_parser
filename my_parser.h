@@ -37,6 +37,8 @@ void debug(char*);
 void parse_log(char*, my_log*);
 void parse_time(char*, my_time*);
 void print_json(my_log);
+void count(my_log, host_counter*, int*);
+void re_sort(host_counter*, int);
 
 void parse_log(char* line, my_log* log) {
   char time_str[256];
@@ -76,6 +78,45 @@ void print_json(my_log log) {
   printf("  \"referer\":\"%s\",\n", log.referer);
   printf("  \"user_agent\":\"%s\"\n", log.user_agent);
   printf("}\n");
+}
+
+void count(my_log log, host_counter* counter, int* size) {
+  bool contain = false;
+  int i;
+  host_counter* new_addr;
+  for ( i = 0; i < *size; i++ ) {
+    if ( strcmp( counter[i].host, log.host ) == 0 ) {
+      contain = true;
+      counter[i].count++;
+      break;
+    }
+  }
+  if ( !contain ) {
+    (*size)++;
+    if ( (*size)%65536 == 0 ) {
+      new_addr = (host_counter*)realloc(counter, (*size)+65536);
+      if ( new_addr == NULL ) {
+        fprintf(stderr, "count : not enough memory\n");
+        exit(1);
+      }
+      counter = new_addr;
+    }
+    sprintf( counter[i].host, "%s", log.host );
+    counter[i].count = 1;
+  }
+  re_sort( counter, i );
+}
+
+void re_sort(host_counter* counter, int target) {
+  int i;
+  host_counter temp;
+  for ( i = target; i >= 1; i-- ) {
+    if ( counter[i].count > counter[i-1].count ) {
+      temp = counter[i];
+      counter[i] = counter[i-1];
+      counter[i-1] = temp;
+    }
+  }
 }
 
 #endif
