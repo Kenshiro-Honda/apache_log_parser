@@ -34,26 +34,29 @@ typedef struct {
 } host_counter;
 
 void debug(char*);
-void parse_log(char*, my_log*);
-void parse_time(char*, my_time*);
+int parse_log(char*, my_log*);
+int parse_time(char*, my_time*);
 void print_json(my_log);
 void count(my_log, host_counter*, int*);
 void re_sort(host_counter*, int);
 int date_compare(my_time, my_time);
 
-void parse_log(char* line, my_log* log) {
+int parse_log(char* line, my_log* log) {
   char time_str[256];
-  sscanf(line, "%s %s %s [%[^]]] \"%[^\"]\" %d %d \"%[^\"]\" \"%[^\"]\"", 
+  int result;
+  result = sscanf(line, "%s %s %s [%[^]]] \"%[^\"]\" %d %d \"%[^\"]\" \"%[^\"]\"", 
     log->host, log->client_id, log->username, time_str,
     log->request, &(log->status), &(log->res_size), 
     log->referer, log->user_agent);
-  parse_time(time_str, &(log->time));
+  result += parse_time(time_str, &(log->time));
+  return result;
 }
 
-void parse_time(char* str, my_time* time) {
+int parse_time(char* str, my_time* time) {
   char month_str[4];
   int i;
-  sscanf(str, "%d/%[^/]/%d:%d:%d:%d %d", 
+  int result;
+  result = sscanf(str, "%d/%[^/]/%d:%d:%d:%d %d", 
     &(time->day), month_str, &(time->year),
     &(time->hour), &(time->min), &(time->sec),
     &(time->timezone));
@@ -63,6 +66,7 @@ void parse_time(char* str, my_time* time) {
       break;
     }
   }
+  return result;
 }
 
 void print_json(my_log log) {
