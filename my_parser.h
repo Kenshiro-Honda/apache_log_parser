@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifndef _MY_PAESER
+#ifndef _MY_PARSER
 #define _MY_PARSER
 
 typedef struct {

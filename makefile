@@ -1,5 +1,2 @@
 default: main.c
-	gcc -o main main.c
-
-dummy: dummy.c
-	gcc -o dummy_gen dummy.c
+	gcc -o apache_log_parser main.c
